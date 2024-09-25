@@ -13,6 +13,64 @@ const HeatmapChart = () => {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [heatmapData, setHeatmapData] = useState([]);
+ 
+ 
+  const transformToNewFormat = (heatmapData) => {
+    const transformedData = [];
+  
+    if (!heatmapData.length || !heatmapData[0]?.data) {
+      console.error("Invalid heatmap data format:", heatmapData);
+      return transformedData; 
+    }
+  
+    transformedData.push({
+      name: heatmapData[0].name,
+      data: heatmapData[0].data.slice(0, 3), 
+    });
+    
+    
+    transformedData.push({
+      name: heatmapData[0].name,
+      data: heatmapData[0].data.slice(3, 6), 
+    });
+  
+     
+    transformedData.push({
+      name: heatmapData[0].name,
+      data: heatmapData[0].data.slice(6, 9), 
+    });
+  
+    
+    transformedData.push({
+      name: heatmapData[0].name,
+      data: heatmapData[0].data.slice(9), 
+    });
+  
+    return transformedData;
+  };
+const newDataFormat = transformToNewFormat(heatmapData);
+
+
+console.log(newDataFormat,"newDataFormat");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     const fetchHeatmapData = async () => {
@@ -129,7 +187,7 @@ const HeatmapChart = () => {
         </Loader>
       ) : (
         <ChartWrapper>
-          <Chart options={options} series={heatmapData} type="heatmap" height="350" />
+          <Chart options={options} series={newDataFormat} type="heatmap" height="350" />
         </ChartWrapper>
       )}
     </CenteredContainer>

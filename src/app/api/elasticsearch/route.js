@@ -20,7 +20,7 @@ export async function GET(req) {
     const heatmapResponse = await client.search({
       index: 'earthquake_jsondata',
       from:0,
-      size: 100,
+      size: 20,
       body: {
         query: {
           term: {
