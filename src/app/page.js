@@ -1,3 +1,4 @@
+"use client"
 import DonutChart from "./components/DountChart";
 // import HeatMapChart from "./components/HeatmapChart";
  
