@@ -16,9 +16,11 @@ export async function GET(req) {
     return new Response(null, { status: 200, headers });
   }
 
+  // source="Twitter"
+
   try {
     const heatmapResponse = await client.search({
-      index: 'earthquake_jsondata',
+      index: 'earthquake_datas',
       from:0,
       size: 20,
       body: {
@@ -26,23 +28,67 @@ export async function GET(req) {
           term: {
             Keywords: {
               value: "Yes",
-              boost: 1.0 
+            
             }
           }
 
         }
       },
     });
+    const city = await client.search({
+      index: 'earthquake_datas',
+      body: {
+        query: {
+          bool: {
+            must: [
+              {
+                exists: {
+                  field: "city"
+                }
+              },
+              {
+                exists: {
+                  field: "location"
+                }
+              }
+            ]
+          }
+        },
+        _source: ["city", "location"]
+      }
+    });
+    const earthquakeLocations = city.hits.hits.map(hit => ({
+      city: hit._source.city,
+      lat: hit._source.location.lat,
+      lon: hit._source.location.lon
+    }));
+    
+    console.log(earthquakeLocations);
+ 
+    
 
     const heatmapData = heatmapResponse.hits.hits.map(hit => hit._source);
     const sentimentResponse = await client.search({
-      index: 'earthquake_jsondata',
+      index: 'earthquake_datas',
       body: {
+        query:{
+          bool:{
+            must:{
+                match:{
+                 source:"Twitter"
+                },
+              }
+            },
+          
+        },
         aggs: {
           sentiment_count: {
-            terms: { field: 'predicted_sentiment_value', size: 20 }, 
+            terms: { field: 'predicted_sentiment_value' },
+         
           },
-        },
+        }
+        
+        ,
       },
     });
 
@@ -70,7 +116,7 @@ export async function GET(req) {
     ];
 
    
-     return new Response(JSON.stringify({ heatmapData, donutData }), {
+     return new Response(JSON.stringify({ heatmapData, donutData ,earthquakeLocations}), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...Object.fromEntries(headers) },
     });
