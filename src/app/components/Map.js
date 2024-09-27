@@ -155,11 +155,11 @@ const MapComponent = () => {
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
                             placeholder="Search by city or magnitude"
-                            style={{ padding: '5px', marginRight: '5px', fontSize: '14px' }} // Reduced padding
+                            style={{ padding: '30px 24px ', marginRight: '5px', fontSize: '14px' }} // Reduced padding
                         />
                         <button 
                             onClick={handleFilter} 
-                            style={{ padding: '5px 10px', marginRight: '5px', fontSize: '14px' }} // Reduced padding
+                            style={{ padding: '30px 24px', marginRight: '5px', fontSize: '14px' }} // Reduced padding
                         >
                             Filter
                         </button>
