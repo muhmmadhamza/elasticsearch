@@ -102,26 +102,19 @@ const MapComponent = () => {
     };
 
     const handleFilter = () => {
-        // const lowerKeyword = keyword.toLowerCase();
-
-        // const filtered = earthquakeData.filter(quake => 
-        //     quake.location.toLowerCase().includes(lowerKeyword) ||  // Match location (city)
-        //     quake.magnitude.toString().includes(lowerKeyword)       // Match magnitude
-        // );
-
-        // setFilteredData(filtered);
-
-
-        const lowerKeyword = keyword.trim().toLowerCase(); // Trim spaces
+      const lowerKeyword = keyword.trim().toLowerCase(); // Trim spaces
 
     if (lowerKeyword === '') {
         setFilteredData(earthquakeData);
         return;
     }
 
-    const filtered = earthquakeData.filter(quake =>
+    const filtered = earthquakeData.filter(quake => 
         quake.location.toLowerCase().includes(lowerKeyword) ||
-        quake.magnitude.toString().includes(lowerKeyword)
+        quake.magnitude.toString().includes(lowerKeyword) ||
+        quake.depth.toString().includes(lowerKeyword) ||
+        quake.lat.toString().includes(lowerKeyword) ||
+        quake.lng.toString().includes(lowerKeyword)
     );
 
     setFilteredData(filtered);
