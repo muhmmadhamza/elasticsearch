@@ -48,9 +48,13 @@ const Legend = () => {
 
             // Add magnitude ranges to the legend
             const magnitudeRanges = [
-                { color: 'red', range: '7+', description: 'High Magnitude' },
-                { color: 'blue', range: '4.0 to 5.0', description: 'Low Magnitude' },
-                { color: 'green', range: 'less than 4.0', description: 'Minor Earthquake' },
+                { color: 'green', range: '1.0-4.9', description: 'Minor Earthquake' },
+                { color: 'blue', range: '5.0- 5.9', description: 'Low Magnitude' },
+                { color: 'orange', range: '6.0-6.9', description: 'High Magnitude' },
+                { color: 'red', range: '7.0-8.9', description: 'High Magnitude' },
+             
+    
+                ,
             ];
 
             const labels = magnitudeRanges.map((item) =>
