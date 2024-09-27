@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { styled } from '@mui/material/styles';
-import { Box, Button, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Typography, TextField, Button } from '@mui/material';
 import L from 'leaflet';
 
 const earthquakeData = [
@@ -33,6 +33,7 @@ const getRadiusByMagnitude = (magnitude) => {
     if (magnitude < 6.0) return 10;
     return 15;
 };
+
 const Legend = () => {
     const map = useMap();
 
@@ -41,7 +42,7 @@ const Legend = () => {
 
         legend.onAdd = function () {
             const div = L.DomUtil.create('div', 'info legend');
-            div.style.backgroundColor = 'white';   
+            div.style.backgroundColor = 'white';
             div.style.padding = '10px';
             div.style.borderRadius = '5px';
 
@@ -52,7 +53,7 @@ const Legend = () => {
                 { color: 'green', range: 'less than 4.0', description: 'Minor Earthquake' },
             ];
 
-            const labels = magnitudeRanges.map((item) => 
+            const labels = magnitudeRanges.map((item) =>
                 `<i style="background:${item.color}; border-radius: 50%; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> 
                 ${item.range}`
             ).join('<br>');
@@ -66,9 +67,9 @@ const Legend = () => {
             // Three orange circles (small, medium, large) for 5.0 - 6.9 magnitudes
             const orangeCircles = `
                 <div style="display: flex; align-items: center;">
-                    <div style="width: 10px; height: 10px; background: orange; border-radius: 50%; margin-right: 5px;"></div> Small
-                    <div style="width: 15px; height: 15px; background: orange; border-radius: 50%; margin-left: 10px; margin-right: 5px;"></div> Medium
-                    <div style="width: 20px; height: 20px; background: orange; border-radius: 50%; margin-left: 10px; margin-right: 5px;"></div> Large
+                <div style="width: 20px; height: 20px; background: orange; border-radius: 50%; margin-left: 10px; margin-right: 5px;"></div>6.5
+                 <div style="width: 15px; height: 15px; background: orange; border-radius: 50%; margin-left: 10px; margin-right: 5px;"></div> 6.1
+                    <div style="width: 10px; height: 10px; background: orange; border-radius: 50%; margin-right: 5px;"></div> 6
                 </div>`;
 
             // Set the legend's HTML to show the magnitude ranges and red/orange circles
@@ -88,27 +89,70 @@ const Legend = () => {
 
 
 const MapComponent = () => {
-    const [keyword, setKeyword] = useState('');
-    const [filteredData, setFilteredData] = useState(earthquakeData);
+
+ 
+
+    const [mounted, setMounted] = useState(false);
+    const [mapData, setmapData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [keyword, setKeyword] = useState('');      // Keyword state for filtering
+    const [filteredData, setFilteredData] = useState(earthquakeData);
+    const handleInputChange = (e) => {
+        setKeyword(e.target.value);
+    };
+
+    const handleFilter = () => {
+        // const lowerKeyword = keyword.toLowerCase();
+
+        // const filtered = earthquakeData.filter(quake => 
+        //     quake.location.toLowerCase().includes(lowerKeyword) ||  // Match location (city)
+        //     quake.magnitude.toString().includes(lowerKeyword)       // Match magnitude
+        // );
+
+        // setFilteredData(filtered);
+
+
+        const lowerKeyword = keyword.trim().toLowerCase(); // Trim spaces
+
+    if (lowerKeyword === '') {
+        setFilteredData(earthquakeData);
+        return;
+    }
+
+    const filtered = earthquakeData.filter(quake =>
+        quake.location.toLowerCase().includes(lowerKeyword) ||
+        quake.magnitude.toString().includes(lowerKeyword)
+    );
+
+    setFilteredData(filtered);
+    };
+    
+    const handleReset = () => {
+        setKeyword(''); // Clear the input field
+        setFilteredData(earthquakeData); // Reset map to show all earthquakes
+    };
 
     useEffect(() => {
         const fetchHeatmapData = async () => {
             try {
                 const response = await axios.get("/api/elasticsearch");
+                console.log(response.data.earthquakeLocations, "hello")
                 const result = response.data.earthquakeLocations;
+                // console.log(result,"hh");
 
-                const formattedData = result.map((item) => ({
-                    city: item.city,
-                    lat: item.lat,
-                    lon: item.lon,
-                    magnitude: parseFloat(item.magnitude) || 0,
-                    depth: item.depth ? parseFloat(item.depth) : 0
-                })).filter(item => item.lat !== undefined && item.lon !== undefined &&
-                    item.lat >= -90 && item.lat <= 90 &&
-                    item.lon >= -180 && item.lon <= 180);
+                const formattedData = result
+                    .map((item) => ({
+                        city: item.city,
+                        lat: item.lat,
+                        lon: item.lon,
+                        magnitude: parseFloat(item.magnitude) || 0,
+                        depth: item.depth ? parseFloat(item.depth) : 0
+                    })).filter(item => item.lat !== undefined && item.lon !== undefined &&
+                        item.lat >= -90 && item.lat <= 90 &&
+                        item.lon >= -180 && item.lon <= 180);
 
-                setFilteredData(formattedData);
+
+                setmapData(formattedData);
             } catch (error) {
                 console.error("Error fetching heatmap data:", error);
             } finally {
@@ -119,26 +163,6 @@ const MapComponent = () => {
         fetchHeatmapData();
     }, []);
 
-    const handleFilter = () => {
-        const lowerKeyword = keyword.toLowerCase();
-
-        if (lowerKeyword === '') {
-            setFilteredData(earthquakeData);
-            return;
-        }
-
-        const filtered = earthquakeData.filter(quake =>
-            quake.location.toLowerCase().includes(lowerKeyword) ||
-            quake.magnitude.toString().includes(lowerKeyword)
-        );
-
-        setFilteredData(filtered);
-    };
-
-    const handleReset = () => {
-        setKeyword('');
-        setFilteredData(earthquakeData);
-    };
 
     return (
         <>
@@ -149,24 +173,25 @@ const MapComponent = () => {
                 </Loader>
             ) : (
                 <>
+
                     <Box display="flex" justifyContent="center" marginBottom={2}>
-                <TextField
-                     sx={{ padding: '5px', marginRight: '5px', fontSize: '14px' }}
-                    variant="outlined"
-                    value={keyword}
-                    onChange={handleInputChange}
-                />
-                <Button variant="contained" color="primary"
-                 style={{ padding: '20px 10px', marginRight: '5px', fontSize: '14px', height:"13px" }}
-                 onClick={handleFilter} sx={{ marginLeft: 2 }}>
-                    Filter
-                </Button>
-                <Button variant="contained" color="secondary"
-                 style={{padding: '20px 10px', marginRight: '5px', fontSize: '14px', height:"13px"  }}
-                onClick={handleReset} sx={{ marginLeft: 2 }}>
-                    clear Filter
-                </Button>
-            </Box>
+                        <TextField
+                        placeholder='search here any keyword'
+                            variant="outlined"
+                            value={keyword}
+                            onChange={handleInputChange}
+                        />
+                        <Button variant="contained" color="primary"
+                            style={{ padding: '27px 25px', marginRight: '5px', fontSize: '14px', height: "13px" }}
+                            onClick={handleFilter} sx={{ marginLeft: 2 }}>
+                            Filter
+                        </Button>
+                        <Button variant="contained" color="secondary"
+                            style={{ padding: '27px 25px', marginRight: '5px', fontSize: '14px', height: "13px" }}
+                            onClick={handleReset} sx={{ marginLeft: 2 }}>
+                            clear Filter
+                        </Button>
+                    </Box>
 
                     <MapContainer
                         center={[38.9637, 35.2433]}
@@ -174,6 +199,7 @@ const MapComponent = () => {
                         scrollWheelZoom={true}
                         style={{ height: '100vh', width: '100%' }}
                     >
+                     
                         <LayersControl position="topright">
                             <LayersControl.BaseLayer checked name="OpenStreetMap">
                                 <TileLayer
@@ -182,28 +208,43 @@ const MapComponent = () => {
                                 />
                             </LayersControl.BaseLayer>
 
-                            {/* Show earthquake circles from filteredData */}
-                            {filteredData.map((quake) => (
+                            <LayersControl.BaseLayer name="Satellite">
+                                <TileLayer
+                                    url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+                                    attribution='&copy; <a href="http://opentopomap.org">OpenTopoMap</a> contributors'
+                                />
+                            </LayersControl.BaseLayer>
+
+                            <LayersControl.BaseLayer name="Stamen Terrain">
+                                <TileLayer
+                                    url="https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg"
+                                    attribution='&copy; <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>'
+                                />
+                            </LayersControl.BaseLayer>
+
+                            {/* Show earthquake circles */}
+                            {filteredData?.map((quake) => (
                                 <CircleMarker
                                     key={quake.location}
-                                    center={[quake.lat, quake.lon]}
+                                    center={[quake.lat, quake.lng]}
                                     radius={getRadiusByMagnitude(quake.magnitude)}
                                     fillColor={getColorByMagnitude(quake.magnitude)}
                                     color={getColorByMagnitude(quake.magnitude)}
                                     fillOpacity={0.6}
                                 >
                                     <Popup>
-                                        <strong>{quake.location}</strong><br />
+                                        <strong>{quake.city}</strong><br />
                                         Magnitude: {quake.magnitude}<br />
                                         Depth: {quake.depth} km<br />
                                         Latitude: {quake.lat}<br />
-                                        Longitude: {quake.lon}
+                                        Longitude: {quake.lng}
                                     </Popup>
                                 </CircleMarker>
                             ))}
                         </LayersControl>
 
-                        <Legend />
+                        {/* Legend Component */}
+                        <Legend mapData={mapData} />
                     </MapContainer>
                 </>
             )}
@@ -212,6 +253,9 @@ const MapComponent = () => {
 };
 
 export default MapComponent;
+
+
+
 
 const Loader = styled(Box)(({ theme }) => ({
     display: 'flex',
