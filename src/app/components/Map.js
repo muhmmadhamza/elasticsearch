@@ -162,7 +162,11 @@ const MapComponent = () => {
 
         fetchHeatmapData();
     }, []);
-
+    useEffect(() => {
+        if (keyword.trim() === '') {
+            setFilteredData(earthquakeData);
+        }
+    }, [keyword]);
 
     return (
         <>
