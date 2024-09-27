@@ -13,6 +13,7 @@ const HeatmapChart = () => {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [heatmapData, setHeatmapData] = useState([]);
+  console.log(heatmapData,"heatmapData")
 
   useEffect(() => {
     const fetchHeatmapData = async () => {

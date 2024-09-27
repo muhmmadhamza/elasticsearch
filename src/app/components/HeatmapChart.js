@@ -1,14 +1,15 @@
 "use client";
-
+import dynamic from 'next/dynamic';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Chart from "react-apexcharts";
+
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 const HeatMapChart = () => {
   const [mapData, setmapData] = useState([]);
   const [loading, setLoading] = useState(true);
+  console.log(mapData,"mapdata")
 
   useEffect(() => {
     const fetchHeatmapData = async () => {

@@ -20,7 +20,7 @@ export async function GET(req) {
 
   try {
     const heatmapResponse = await client.search({
-      index: 'earthquake_datas',
+      index: 'earthquake_jsons',
       from:0,
       size: 20,
       body: {
@@ -35,8 +35,37 @@ export async function GET(req) {
         }
       },
     });
-    const city = await client.search({
-      index: 'earthquake_datas',
+    // const city = await client.search({
+    //   index: 'earthquake_jsons',
+    //   body: {
+    //     query: {
+    //       bool: {
+    //         must: [
+    //           {
+    //             exists: {
+    //               field: "city"
+    //             }
+    //           },
+    //           {
+    //             exists: {
+    //               field: "location"
+    //             }
+    //           }
+    //         ]
+    //       }
+    //     },
+    //     _source: ["city", "location"]
+    //   }
+    // });
+    // const earthquakeLocations = city.hits.hits.map(hit => ({
+    //   city: hit._source.city,
+    //   lat: hit._source.location.lat,
+    //   lon: hit._source.location.lon
+    // }));
+    // console.log(earthquakeLocations.lat)
+    
+    const citydata = await client.search({
+      index: 'earthquake_jsons',
       body: {
         query: {
           bool: {
@@ -50,26 +79,41 @@ export async function GET(req) {
                 exists: {
                   field: "location"
                 }
+              },
+              {
+                exists: {
+                  field: "magnitude"
+                }
+              },
+              {
+                exists: {
+                  field: "depth"
+                }
               }
             ]
           }
         },
-        _source: ["city", "location"]
+        _source: ["city", "location", "magnitude", "depth"] // Limit the fields returned in the response
       }
     });
-    const earthquakeLocations = city.hits.hits.map(hit => ({
+   
+
+    // Mapping the results to extract relevant information
+    const earthquakeLocations = citydata.hits.hits.map(hit => ({
       city: hit._source.city,
       lat: hit._source.location.lat,
-      lon: hit._source.location.lon
+      lon: hit._source.location.lon,
+      magnitude: hit._source.magnitude,
+      depth: hit._source.depth
     }));
     
-    console.log(earthquakeLocations);
- 
+    console.log(earthquakeLocations, "earthquakeLocations"); // Log the full array of locations with magnitude and depth
+    
     
 
     const heatmapData = heatmapResponse.hits.hits.map(hit => hit._source);
     const sentimentResponse = await client.search({
-      index: 'earthquake_datas',
+      index: 'earthquake_jsons',
       body: {
         query:{
           bool:{
