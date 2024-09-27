@@ -391,18 +391,19 @@ const MapComponent = () => {
             {/* Keyword Input and Filter Button */}
             <Box display="flex" justifyContent="center" marginBottom={2}>
                 <TextField
+                placeholder='Enter keyword'
                      sx={{ padding: '5px', marginRight: '5px', fontSize: '14px' }}
                     variant="outlined"
                     value={keyword}
                     onChange={handleInputChange}
                 />
                 <Button variant="contained" color="primary"
-                 style={{ padding: '20px 10px', marginRight: '5px', fontSize: '14px', height:"13px" }}
+                 style={{ padding: '30px 10px', marginRight: '5px', fontSize: '14px', height:"13px" }}
                  onClick={handleFilter} sx={{ marginLeft: 2 }}>
                     Filter
                 </Button>
                 <Button variant="contained" color="secondary"
-                 style={{padding: '20px 10px', marginRight: '5px', fontSize: '14px', height:"13px"  }}
+                 style={{padding: '30px 10px', marginRight: '5px', fontSize: '14px', height:"13px"  }}
                 onClick={handleReset} sx={{ marginLeft: 2 }}>
                     clear Filter
                 </Button>
