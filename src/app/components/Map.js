@@ -1,4 +1,4 @@
- 
+
 "use client";
 import { MapContainer, TileLayer, Popup, LayersControl, CircleMarker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -30,12 +30,60 @@ const getColorByMagnitude = (magnitude) => {
 };
 
 const getRadiusByMagnitude = (magnitude) => {
-    if (magnitude < 5.0) return 5;     
-    if (magnitude < 6.0) return 10;    
-    return 15;                       
+    if (magnitude < 5.0) return 5;
+    if (magnitude < 6.0) return 10;
+    return 15;
 };
 
-const Legend = ( ) => {
+// const Legend = ( ) => {
+//     const map = useMap();
+
+//     useEffect(() => {
+//         const legend = L.control({ position: 'bottomleft' });
+
+//         legend.onAdd = function () {
+//             const div = L.DomUtil.create('div', 'info legend');
+//             div.style.backgroundColor = 'white';   
+//             div.style.padding = '10px';
+//             div.style.borderRadius = '5px';
+
+//             // Add magnitude ranges to the legend
+//             const magnitudeRanges = [
+//                 { color: 'red', range: '7+', description: 'High Magnitude' },
+//                 { color: 'orange', range: '5.0 to 6.9', description: 'Medium Magnitude' },
+//                 { color: 'blue', range: '4.0 to 5.0', description: 'Low Magnitude' },
+//                 { color: 'green', range: 'less then4.0', description: 'Minor Earthquake' },
+//             ];
+
+//             const labels = magnitudeRanges.map((item) => 
+//                 `<i style="background:${item.color}; border-radius: 50%; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> 
+//                 ${item.range}`
+//             ).join('<br>');
+
+//             // Identify the maximum magnitude earthquake
+//             const maxMagnitudeEarthquake = earthquakeData.reduce((max, quake) => quake.magnitude > max.magnitude ? quake : max, earthquakeData[0]);
+
+//             // Add max magnitude circle to the legend
+//             const maxMagnitudeCircle = `<div style="width: 25px; height: 25px; background: red; border-radius: 50%; display: inline-block; margin-right: 5px;"></div> 7.0`;
+
+//             // Set the legend's HTML to show the magnitude ranges and max magnitude circle
+//             div.innerHTML = `<h4>Magnitude Legend</h4>${labels}<br>${maxMagnitudeCircle}`;
+//             return div;
+//         };
+
+//         legend.addTo(map);
+
+//         return () => {
+//             map.removeControl(legend);
+//         };
+//     }, [map]);
+
+//     return null;
+// };
+
+
+
+const Legend = () => {
     const map = useMap();
 
     useEffect(() => {
@@ -43,19 +91,19 @@ const Legend = ( ) => {
 
         legend.onAdd = function () {
             const div = L.DomUtil.create('div', 'info legend');
-            div.style.backgroundColor = 'white';   
+            div.style.backgroundColor = 'white';
             div.style.padding = '10px';
             div.style.borderRadius = '5px';
 
             // Add magnitude ranges to the legend
             const magnitudeRanges = [
-                { color: 'red', range: '7+', description: 'High Magnitude' },
-                { color: 'orange', range: '5.0 to 6.9', description: 'Medium Magnitude' },
-                { color: 'blue', range: '4.0 to 5.0', description: 'Low Magnitude' },
-                { color: 'green', range: 'less then4.0', description: 'Minor Earthquake' },
+                { color: 'red', range: '7+', description: 'High magnitude' },
+                { color: 'orange', range: '5.0-6.9', description: 'High Magnitude' },
+                { color: 'blue', range: '4.0-5.0', description: 'Low Magnitude' },
+                { color: 'green', range: 'less than 4.0', description: 'Minor Earthquake' },
             ];
 
-            const labels = magnitudeRanges.map((item) => 
+            const labels = magnitudeRanges.map((item) =>
                 `<i style="background:${item.color}; border-radius: 50%; width: 12px; height: 12px; display: inline-block; margin-right: 5px;"></i> 
                 ${item.range}`
             ).join('<br>');
@@ -63,11 +111,20 @@ const Legend = ( ) => {
             // Identify the maximum magnitude earthquake
             const maxMagnitudeEarthquake = earthquakeData.reduce((max, quake) => quake.magnitude > max.magnitude ? quake : max, earthquakeData[0]);
 
-            // Add max magnitude circle to the legend
-            const maxMagnitudeCircle = `<div style="width: 25px; height: 25px; background: red; border-radius: 50%; display: inline-block; margin-right: 5px;"></div> 7.0`;
+            // Red circle for max magnitude (7+)
+            const maxMagnitudeCircle = `<div style="width: 25px; height: 25px; background: red; border-radius: 50%; display: inline-block; margin-right: 5px;"></div> 7 Highest magnitude`;
 
-            // Set the legend's HTML to show the magnitude ranges and max magnitude circle
-            div.innerHTML = `<h4>Magnitude Legend</h4>${labels}<br>${maxMagnitudeCircle}`;
+            // Three orange circles (small, medium, large) for 5.0 - 6.9 magnitudes
+            const orangeCircles = `
+                <div style="display: flex; align-items: center;">
+                <div style="width: 20px; height: 20px; background: orange; border-radius: 50%; margin-left: 10px; margin-right: 5px;"></div> 6.5
+                <div style="width: 15px; height: 15px; background: orange; border-radius: 50%; margin-left: 10px; margin-right: 5px;"></div>6.1
+                <div style="width: 10px; height: 10px; background: orange; border-radius: 50%; margin-right: 5px;"></div> 6
+
+                </div>`;
+
+            // Set the legend's HTML to show the magnitude ranges and red/orange circles
+            div.innerHTML = `<h4>Magnitude Legend</h4>${labels}<br>${maxMagnitudeCircle}<br>${orangeCircles}`;
             return div;
         };
 
@@ -81,110 +138,111 @@ const Legend = ( ) => {
     return null;
 };
 
+
 const MapComponent = () => {
 
 
 
-  const [mounted, setMounted] = useState(false);
+    const [mounted, setMounted] = useState(false);
     const [mapData, setmapData] = useState([]);
     const [loading, setLoading] = useState(true);
-    console.log(mapData,"mapdatass")
-  
+    console.log(mapData, "mapdatass")
+
     useEffect(() => {
         const fetchHeatmapData = async () => {
-          try {
-            const response = await axios.get("/api/elasticsearch");
-            console.log(response.data.earthquakeLocations,"hello")
-            const result = response.data.earthquakeLocations; 
-            // console.log(result,"hh");
-     
-            const formattedData = result
-            .map((item) => ({
-                city: item.city,
-                lat: item.lat,
-                lon: item.lon,
-                magnitude: parseFloat(item.magnitude) || 0,
-                depth: item.depth ? parseFloat(item.depth) : 0 
-            })) .filter(item => item.lat !== undefined && item.lon !== undefined && 
-                item.lat >= -90 && item.lat <= 90 && 
-                item.lon >= -180 && item.lon <= 180);
-         
+            try {
+                const response = await axios.get("/api/elasticsearch");
+                console.log(response.data.earthquakeLocations, "hello")
+                const result = response.data.earthquakeLocations;
+                // console.log(result,"hh");
 
-            setmapData(formattedData); 
-          } catch (error) {
-            console.error("Error fetching heatmap data:", error);
-          } finally {
-            setLoading(false);
-          }
+                const formattedData = result
+                    .map((item) => ({
+                        city: item.city,
+                        lat: item.lat,
+                        lon: item.lon,
+                        magnitude: parseFloat(item.magnitude) || 0,
+                        depth: item.depth ? parseFloat(item.depth) : 0
+                    })).filter(item => item.lat !== undefined && item.lon !== undefined &&
+                        item.lat >= -90 && item.lat <= 90 &&
+                        item.lon >= -180 && item.lon <= 180);
+
+
+                setmapData(formattedData);
+            } catch (error) {
+                console.error("Error fetching heatmap data:", error);
+            } finally {
+                setLoading(false);
+            }
         };
-    
+
         fetchHeatmapData();
-      }, []);
-    
-  
+    }, []);
+
+
     return (
-      <>
-         {loading ? (
-        <Loader>
-          <CircularProgress sx={{ color: 'yellow' }} />
-          <Typography variant="h6" marginTop={2}>Loading...</Typography>
-        </Loader>
-      ) : (
-        <MapContainer 
-            center={[38.9637, 35.2433]} 
-            zoom={6} 
-            scrollWheelZoom={true} 
-            style={{ height: '100vh', width: '100%' }} 
-        >
-            {/* Layer Control */}
-            <LayersControl position="topright">
-                <LayersControl.BaseLayer checked name="OpenStreetMap">
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                </LayersControl.BaseLayer>
+        <>
+            {loading ? (
+                <Loader>
+                    <CircularProgress sx={{ color: 'red' }} />
+                    <Typography variant="h6" marginTop={2}>Loading...</Typography>
+                </Loader>
+            ) : (
+                <MapContainer
+                    center={[38.9637, 35.2433]}
+                    zoom={6}
+                    scrollWheelZoom={true}
+                    style={{ height: '100vh', width: '100%' }}
+                >
+                    {/* Layer Control */}
+                    <LayersControl position="topright">
+                        <LayersControl.BaseLayer checked name="OpenStreetMap">
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            />
+                        </LayersControl.BaseLayer>
 
-                <LayersControl.BaseLayer name="Satellite">
-                    <TileLayer
-                        url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="http://opentopomap.org">OpenTopoMap</a> contributors'
-                    />
-                </LayersControl.BaseLayer>
+                        <LayersControl.BaseLayer name="Satellite">
+                            <TileLayer
+                                url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+                                attribution='&copy; <a href="http://opentopomap.org">OpenTopoMap</a> contributors'
+                            />
+                        </LayersControl.BaseLayer>
 
-                <LayersControl.BaseLayer name="Stamen Terrain">
-                    <TileLayer
-                        url="https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg"
-                        attribution='&copy; <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>'
-                    />
-                </LayersControl.BaseLayer>
+                        <LayersControl.BaseLayer name="Stamen Terrain">
+                            <TileLayer
+                                url="https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg"
+                                attribution='&copy; <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>'
+                            />
+                        </LayersControl.BaseLayer>
 
-                {/* Show earthquake circles */}
-                {earthquakeData?.map((quake) => (
-                    <CircleMarker
-                        key={quake.location}
-                        center={[quake.lat, quake.lng]}
-                        radius={getRadiusByMagnitude(quake.magnitude)} 
-                        fillColor={getColorByMagnitude(quake.magnitude)} 
-                        color={getColorByMagnitude(quake.magnitude)}
-                        fillOpacity={0.6}
-                    >
-                        <Popup>
-                            <strong>{quake.city}</strong><br />
-                            Magnitude: {quake.magnitude}<br />
-                            Depth: {quake.depth} km<br />
-                            Latitude: {quake.lat}<br />
-                            Longitude: {quake.lng}
-                        </Popup>
-                    </CircleMarker>
-                ))}
-            </LayersControl>
+                        {/* Show earthquake circles */}
+                        {earthquakeData?.map((quake) => (
+                            <CircleMarker
+                                key={quake.location}
+                                center={[quake.lat, quake.lng]}
+                                radius={getRadiusByMagnitude(quake.magnitude)}
+                                fillColor={getColorByMagnitude(quake.magnitude)}
+                                color={getColorByMagnitude(quake.magnitude)}
+                                fillOpacity={0.6}
+                            >
+                                <Popup>
+                                    <strong>{quake.city}</strong><br />
+                                    Magnitude: {quake.magnitude}<br />
+                                    Depth: {quake.depth} km<br />
+                                    Latitude: {quake.lat}<br />
+                                    Longitude: {quake.lng}
+                                </Popup>
+                            </CircleMarker>
+                        ))}
+                    </LayersControl>
 
-            {/* Legend Component */}
-            <Legend mapData={mapData}/>
-        </MapContainer>
-      )}
-      </>
+                    {/* Legend Component */}
+                    <Legend mapData={mapData} />
+                </MapContainer>
+            )}
+        </>
     );
 };
 
@@ -197,6 +255,6 @@ const Loader = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    marginTop:"8rem",
+    marginTop: "8rem",
     alignItems: 'center',
-  }));
+}));
