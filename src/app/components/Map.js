@@ -221,6 +221,7 @@ const MapComponent = () => {
 
                             {/* Show earthquake circles */}
                             {filteredData?.map((quake) => (
+                               
                                 <CircleMarker
                                     key={quake.location}
                                     center={[quake.lat, quake.lng]}
@@ -230,7 +231,7 @@ const MapComponent = () => {
                                     fillOpacity={0.6}
                                 >
                                     <Popup>
-                                        <strong>{quake.city}</strong><br />
+                                        <strong>{quake.location}</strong><br />
                                         Magnitude: {quake.magnitude}<br />
                                         Depth: {quake.depth} km<br />
                                         Latitude: {quake.lat}<br />
