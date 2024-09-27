@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { styled } from '@mui/material/styles';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Typography } from '@mui/material';
 import L from 'leaflet';
 
 const earthquakeData = [
@@ -149,27 +149,24 @@ const MapComponent = () => {
                 </Loader>
             ) : (
                 <>
-                    <div style={{ marginBottom: '10px' }}>
-                        <input
-                            type="text"
-                            value={keyword}
-                            onChange={(e) => setKeyword(e.target.value)}
-                            placeholder="Search by city or magnitude"
-                            style={{ padding: '30px 24px ', marginRight: '5px', fontSize: '14px' }} // Reduced padding
-                        />
-                        <button 
-                            onClick={handleFilter} 
-                            style={{ padding: '30px 24px', marginRight: '5px', fontSize: '14px' }} // Reduced padding
-                        >
-                            Filter
-                        </button>
-                        <button 
-                            onClick={handleReset} 
-                            style={{ padding: '5px 10px', fontSize: '14px' }} // Reduced padding
-                        >
-                            Reset
-                        </button>
-                    </div>
+                    <Box display="flex" justifyContent="center" marginBottom={2}>
+                <TextField
+                     sx={{ padding: '5px', marginRight: '5px', fontSize: '14px' }}
+                    variant="outlined"
+                    value={keyword}
+                    onChange={handleInputChange}
+                />
+                <Button variant="contained" color="primary"
+                 style={{ padding: '20px 10px', marginRight: '5px', fontSize: '14px', height:"13px" }}
+                 onClick={handleFilter} sx={{ marginLeft: 2 }}>
+                    Filter
+                </Button>
+                <Button variant="contained" color="secondary"
+                 style={{padding: '20px 10px', marginRight: '5px', fontSize: '14px', height:"13px"  }}
+                onClick={handleReset} sx={{ marginLeft: 2 }}>
+                    clear Filter
+                </Button>
+            </Box>
 
                     <MapContainer
                         center={[38.9637, 35.2433]}
